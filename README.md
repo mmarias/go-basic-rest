@@ -8,10 +8,11 @@ Example of basic structure of api rest on golang with dummy DataBase.
 # Requirements
 
 1) Install golang >1.13.1
-
 2) Clone repo on your $GOPATH
-
-3) go run main.go
+3) Open terminal and run: 
+- go get -u "github.com/gorilla/mux"
+- go get -u "github.com/davecgh/go-spew/spew"
+4) go run main.go
 
   
 
