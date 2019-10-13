@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"github.com/gorilla/mux"
+
+	/*only for debug*/
+	//"github.com/davecgh/go-spew/spew"
 )
 
 type response struct {
@@ -96,7 +99,7 @@ func getAllResponses(w http.ResponseWriter, r *http.Request) {
 
 func updateResponse(w http.ResponseWriter, r *http.Request) {
 	responseID := mux.Vars(r)["id"]
-	var responseResponse string
+	var updatedData response
 	var responseUpdated bool = false
 
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -113,18 +116,16 @@ func updateResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Please, you must provided responseID")
 	}
 
-	json.Unmarshal(reqBody, &responseResponse)
-	fmt.Printf("%+v\n", reqBody)
-	fmt.Printf("%+v\n", responseResponse)
-	return
-	if (responseResponse == "" && len(responseResponse) <= 0) {
+	json.Unmarshal(reqBody, &updatedData)
+
+	if (updatedData.Response == "" && len(updatedData.Response) <= 0) {
 		fmt.Fprintf(w, "Please, you must provided response data")
 	}
 
-	for _, response := range responses {
+	for i, response := range responses {
 		if responseID == response.ID {
-			response.Response = responseResponse
-			json.NewEncoder(w).Encode(response)
+			responses[i].Response = updatedData.Response
+			json.NewEncoder(w).Encode(responses[i])
 			responseUpdated = true
 			break
 		}
@@ -133,6 +134,37 @@ func updateResponse(w http.ResponseWriter, r *http.Request) {
 	if responseUpdated == false {
 		json.NewEncoder(w).Encode(responseNotFound)
 	}
+}
+
+func deleteOneResponse(w http.ResponseWriter, r *http.Request) {
+	responseID := mux.Vars(r)["id"]
+	var responseExist bool = false
+
+	if (responses == nil) {
+		fmt.Fprintf(w, "Pleases, first create a new response")
+	}
+
+	if (responseID == "" && len(responseID) <= 0) {
+		fmt.Fprintf(w, "Please, you must provided responseID")
+	}
+
+	for i, response := range responses {
+		if responseID == response.ID {
+			responses = append(responses[:i], responses[i+1:]...)
+			json.NewEncoder(w).Encode("Response deleted")
+			responseExist = true
+			break
+		}
+	}
+
+	if responseExist == false {
+		json.NewEncoder(w).Encode(responseNotFound)
+	}
+}
+
+func deleteAllResponses(w http.ResponseWriter, r *http.Request) {
+	responses = allResponse{}
+	json.NewEncoder(w).Encode(responses)	
 }
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -146,5 +178,7 @@ func main() {
 	router.HandleFunc("/responses", getAllResponses).Methods("GET")
 	router.HandleFunc("/response/{id}", getOneResponse).Methods("GET")
 	router.HandleFunc("/response/{id}", updateResponse).Methods("PATCH")
+	router.HandleFunc("/responses", deleteAllResponses).Methods("DELETE")
+	router.HandleFunc("/response/{id}", deleteOneResponse).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
