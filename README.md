@@ -34,7 +34,7 @@ localhost:8080/responses
 ```json
 [{"ID": "x", "Response": "xxxxx xxxx"},{ .... }]
 ```
-- Get one row of DataBase
+Get one row of DataBase
 #### endpoint
 ```
 localhost:8080/response/{id}
@@ -72,7 +72,7 @@ Update one row
 
 ## DELETE
 
-- Delete one row
+Delete one row
 #### endpoint
 ```
  localhost:8080/response/{id}
@@ -82,7 +82,7 @@ Update one row
 {"ID": "{id}", "Response": "Removed"}
 ```
 
-- Delete all -> /responses
+Delete all
 #### endpoint
 ```
  localhost:8080/responses
